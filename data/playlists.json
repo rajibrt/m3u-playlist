@@ -1,0 +1,33 @@
+{
+  "playlistName": "My Master List",
+  "groups": [
+    {
+      "name": "Bangla",
+      "channels": [
+        {
+          "title": "Channel One",
+          "url": "https://example.com/live/one/playlist.m3u8",
+          "logo": "https://example.com/logos/one.png",
+          "tvgId": "channel.one.bd"
+        },
+        {
+          "title": "News 24",
+          "url": "https://example.com/live/news24/index.m3u8",
+          "logo": "https://example.com/logos/news24.png",
+          "tvgId": "news24.bd"
+        }
+      ]
+    },
+    {
+      "name": "Sports",
+      "channels": [
+        {
+          "title": "Sports 24",
+          "url": "https://example.com/live/s24/index.m3u8",
+          "logo": "https://example.com/logos/s24.png",
+          "tvgId": "sports24"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+node_modules/
+.DS_Store
+netlify/edge-functions/
+# Local Netlify folder
+.netlify

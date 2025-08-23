@@ -1,0 +1,127 @@
+<body>
+  <h1>M3U Playlist Dashboard</h1>
+
+  <div class="topbar">
+    <button id="save">💾 Save</button>
+    <a id="m3u" target="_blank">➡️ Open M3U</a>
+    <small>(Add this URL in your TV/app)</small>
+  </div>
+
+  <label
+    >Playlist Name
+    <input id="plistName" placeholder="My Master List" />
+  </label>
+
+  <div id="groups"></div>
+  <button id="addGroup">+ Add Group</button>
+
+  <template id="groupTpl">
+    <fieldset class="group">
+      <legend>Group: <input class="gName" placeholder="Group name" /></legend>
+      <div class="channels"></div>
+      <button class="addCh">+ Add Channel</button>
+    </fieldset>
+  </template>
+
+  <template id="chTpl">
+    <div class="channel">
+      <div class="row">
+        <label
+          >Title <input class="cTitle" placeholder="Channel title"
+        /></label>
+        <label>URL <input class="cUrl" placeholder="https://...m3u8" /></label>
+        <label>Logo <input class="cLogo" placeholder="https://...png" /></label>
+        <label>tvgId <input class="cTvg" placeholder="optional" /></label>
+      </div>
+      <button class="delCh">🗑 Remove</button>
+    </div>
+  </template>
+
+  <script>
+    const apiBase = location.origin
+    const dataUrl = `${apiBase}/api/data`
+    const m3uUrl = `${apiBase}/api/playlist.m3u`
+
+    const state = { playlistName: '', groups: [] }
+
+    const groupsEl = document.getElementById('groups')
+    const gTpl = document.getElementById('groupTpl').content
+    const cTpl = document.getElementById('chTpl').content
+
+    function render() {
+      document.getElementById('plistName').value = state.playlistName || ''
+      groupsEl.innerHTML = ''
+      state.groups.forEach((g, gi) => {
+        const gNode = gTpl.cloneNode(true)
+        const gName = gNode.querySelector('.gName')
+        const chWrap = gNode.querySelector('.channels')
+        gName.value = g.name || ''
+        gName.oninput = (e) => (state.groups[gi].name = e.target.value)
+
+        ;(g.channels || []).forEach((c, ci) =>
+          chWrap.appendChild(renderCh(gi, ci, c))
+        )
+        gNode.querySelector('.addCh').onclick = () => {
+          state.groups[gi].channels = state.groups[gi].channels || []
+          state.groups[gi].channels.push({
+            title: '',
+            url: '',
+            logo: '',
+            tvgId: '',
+          })
+          render()
+        }
+        groupsEl.appendChild(gNode)
+      })
+      document.getElementById('m3u').href = m3uUrl
+    }
+
+    function renderCh(gi, ci, c) {
+      const n = cTpl.cloneNode(true)
+      const q = (s) => n.querySelector(s)
+      q('.cTitle').value = c.title || ''
+      q('.cTitle').oninput = (e) =>
+        (state.groups[gi].channels[ci].title = e.target.value)
+      q('.cUrl').value = c.url || ''
+      q('.cUrl').oninput = (e) =>
+        (state.groups[gi].channels[ci].url = e.target.value)
+      q('.cLogo').value = c.logo || ''
+      q('.cLogo').oninput = (e) =>
+        (state.groups[gi].channels[ci].logo = e.target.value)
+      q('.cTvg').value = c.tvgId || ''
+      q('.cTvg').oninput = (e) =>
+        (state.groups[gi].channels[ci].tvgId = e.target.value)
+      n.querySelector('.delCh').onclick = () => {
+        state.groups[gi].channels.splice(ci, 1)
+        render()
+      }
+      return n
+    }
+
+    document.getElementById('addGroup').onclick = () => {
+      state.groups.push({ name: '', channels: [] })
+      render()
+    }
+
+    document.getElementById('save').onclick = async () => {
+      state.playlistName = document.getElementById('plistName').value.trim()
+      const res = await fetch(dataUrl, {
+        method: 'POST',
+        body: JSON.stringify(state),
+      })
+      alert(res.ok ? 'Saved!' : 'Save failed')
+    }
+
+    ;(async () => {
+      try {
+        const res = await fetch(dataUrl, {
+          headers: { 'Cache-Control': 'no-cache' },
+        })
+        if (res.ok) {
+          Object.assign(state, await res.json())
+        }
+      } catch {}
+      render()
+    })()
+  </script>
+</body>
