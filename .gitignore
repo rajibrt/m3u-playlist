@@ -3,3 +3,5 @@ node_modules/
 netlify/edge-functions/
 # Local Netlify folder
 .netlify
+
+[ -f .gitignore ] && echo "----- .gitignore -----" && cat .gitignore
