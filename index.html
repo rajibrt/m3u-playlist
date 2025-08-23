@@ -39,8 +39,10 @@
 
   <script>
     const apiBase = location.origin
-    const dataUrl = `${apiBase}/api/data`
-    const m3uUrl = `${apiBase}/api/playlist.m3u`
+    // ✅ সঠিক রুট
+    const getUrl = `${apiBase}/api/data-get`
+    const postUrl = `${apiBase}/api/data-post`
+    const m3uUrl = `${apiBase}/api/playlist-m3u`
 
     const state = { playlistName: '', groups: [] }
 
@@ -73,7 +75,7 @@
         }
         groupsEl.appendChild(gNode)
       })
-      document.getElementById('m3u').href = m3uUrl
+      document.getElementById('m3u').href = m3uUrl // ✅ Open M3U ঠিক রুটে
     }
 
     function renderCh(gi, ci, c) {
@@ -103,23 +105,23 @@
       render()
     }
 
+    // ✅ POST এখন /api/data-post এ যাবে
     document.getElementById('save').onclick = async () => {
       state.playlistName = document.getElementById('plistName').value.trim()
-      const res = await fetch(dataUrl, {
+      const res = await fetch(postUrl, {
         method: 'POST',
         body: JSON.stringify(state),
       })
       alert(res.ok ? 'Saved!' : 'Save failed')
     }
 
+    // ✅ প্রাথমিক লোড /api/data-get থেকে
     ;(async () => {
       try {
-        const res = await fetch(dataUrl, {
+        const res = await fetch(getUrl, {
           headers: { 'Cache-Control': 'no-cache' },
         })
-        if (res.ok) {
-          Object.assign(state, await res.json())
-        }
+        if (res.ok) Object.assign(state, await res.json())
       } catch {}
       render()
     })()
